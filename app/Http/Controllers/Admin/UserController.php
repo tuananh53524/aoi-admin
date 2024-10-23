@@ -18,7 +18,7 @@ class UserController extends Controller
     // Hiển thị danh sách người dùng
     public function index()
     {
-        $users = $this->userService->getAllUsers();
+        $users = $this->userService->getListUsers();
         $roles = array_flip(config('app.roles'));
         return view('dashboard.user.index', compact('users','roles'));
     }

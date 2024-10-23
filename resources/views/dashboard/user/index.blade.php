@@ -53,14 +53,16 @@
                         </td>
                         <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('users.edit', $item->id) }}"><i class="fa-solid fa-pen-to-square font-medium text-blue-600"></i></a>
-                            <form action="{{route('users.destroy', $item->id)}}" method="POST">
-                                <i class="fa-solid fa-trash font-medium text-red-600 cursor-pointer"></i>
-                            </form>
+                            <i class="fa-solid fa-trash font-medium text-red-600 cursor-pointer"></i>
                         </td>
                     </tr>
                     @endforeach
                 @endif
             </tbody>
         </table>
+
+        <div class="pagination">
+            {{ $users->links() }}
+        </div>
     </div>
 </x-app-layout>

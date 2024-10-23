@@ -12,9 +12,9 @@ class UserService
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAllUsers()
+    public function getListUsers()
     {
-        return User::all();
+        return User::paginate(10);
     }
 
     /**
