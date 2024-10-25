@@ -21,7 +21,6 @@ class SimpleACL
     {
         if (Auth::check()) {
             $user = Auth::user();
-
             if ($user->role_id == config('app.roles.root')) {
                 return $next($request);
             }
@@ -33,8 +32,8 @@ class SimpleACL
         // Kiểm tra prefix 'admin' và quyền truy cập
         if (strpos($prefix, 'admin') !== false) {
             if (!Auth::check()) return redirect()->route('login');
-
-            abort(401); // Không có quyền truy cập
+            
+            // abort(401); 
         }
 
         return $next($request);

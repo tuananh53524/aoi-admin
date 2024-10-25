@@ -1,7 +1,10 @@
 <x-app-layout>
-
-
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div class="text-end">
+            <a href="{{ route('users.create') }}">
+                <button class="rounded-xl p-2 bg-blue-500 font-medium text-white">Thêm user</button>
+            </a>
+        </div>
       <form action="" class="p-4">
         <div class="pb-4 dark:bg-gray-900">
             <label for="table-search" class="sr-only">Search</label>

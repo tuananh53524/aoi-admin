@@ -36,8 +36,20 @@ class UserService
      */
     public function createUser(array $data)
     {
-        $data['password'] = Hash::make($data['password']);
-        return User::create($data);
+        $user = new User();
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'];
+        $user->role = !empty($data['role']) ? $data['role'] : config('app.roles.admin');
+        $user->password = Hash::make($data['password']);
+        $user->avatar = $data['avatar'];
+        $user->status = ($data['status'] == 'on') ? 1 : 0;
+        dd($user);
+        if ($user->save()) {
+            return redirect()->route('users.index')->with('Success', 'The account has been successfully created');
+        } else {
+            return redirect()->route('users.index')->with('Error', 'Could not creat user');
+        }
     }
 
     /**

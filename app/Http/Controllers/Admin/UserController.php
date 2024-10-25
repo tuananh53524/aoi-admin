@@ -26,7 +26,7 @@ class UserController extends Controller
     // Hiển thị form tạo người dùng mới
     public function create()
     {
-        return view('users.create');
+        return view('dashboard.user.create');
     }
 
     // Lưu người dùng mới
