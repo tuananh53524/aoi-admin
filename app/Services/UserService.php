@@ -4,17 +4,34 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Helpers\ImageHelper;
+use Illuminate\Support\Facades\DB;
+
+;
+
+use Illuminate\Support\Str;
 
 class UserService
 {
+    protected $imageHelper, $model;
+
+    public function __construct(ImageHelper $imageHelper, User $model)
+    {
+        $this->imageHelper = $imageHelper;
+        $this->model = $model;
+    }
+
     /**
      * Get all users.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getListUsers()
+    public function getListUsers($data)
     {
-        return User::paginate(10);
+        $users = $this->model
+                  ->filter($data)
+                  ->paginate(10);
+        return $users;
     }
 
     /**
@@ -42,14 +59,13 @@ class UserService
         $user->phone = $data['phone'];
         $user->role = !empty($data['role']) ? $data['role'] : config('app.roles.admin');
         $user->password = Hash::make($data['password']);
-        $user->avatar = $data['avatar'];
         $user->status = ($data['status'] == 'on') ? 1 : 0;
-        dd($user);
-        if ($user->save()) {
-            return redirect()->route('users.index')->with('Success', 'The account has been successfully created');
-        } else {
-            return redirect()->route('users.index')->with('Error', 'Could not creat user');
+        if (!empty($data['cropped_avatar'])) {
+            $avatar_path = $this->imageHelper->handleImage($data['cropped_avatar'], 'avatar', Str::slug($data['name']));
         }
+        $user->avatar = $avatar_path ?? '';
+
+        return $user->save();
     }
 
     /**
@@ -61,14 +77,31 @@ class UserService
      */
     public function updateUser($id, array $data)
     {
-        $user = $this->findUserById($id);
-        if ($user) {
-            if (isset($data['password'])) {
-                $data['password'] = Hash::make($data['password']);
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
+            
+            // Cập nhật thông tin người dùng
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->phone = $data['phone'];
+            $user->role = !empty($data['role']) ? $data['role'] : config('app.roles.admin');
+            $user->status = isset($data['status']) ? 1 : 0;
+    
+            // Xử lý avatar nếu có
+            if (!empty($data['cropped_avatar'])) {
+                $avatar_path = $this->imageHelper->handleImage($data['cropped_avatar'], 'avatar', Str::slug($data['name']));
+                $user->avatar = $avatar_path;
             }
-            return $user->update($data);
+    
+            $user->save();
+            DB::commit();
+            
+            return ['success' => true, 'message' => 'User updated successfully!'];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['success' => false, 'message' => 'Failed to update user: ' . $e->getMessage()];
         }
-        return false;
     }
 
     /**

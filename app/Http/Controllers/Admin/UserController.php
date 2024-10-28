@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -16,9 +17,10 @@ class UserController extends Controller
     }
 
     // Hiển thị danh sách người dùng
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userService->getListUsers();
+        $filters  = $request->all();
+        $users = $this->userService->getListUsers($filters);
         $roles = array_flip(config('app.roles'));
         return view('dashboard.user.index', compact('users','roles'));
     }
@@ -32,29 +34,34 @@ class UserController extends Controller
     // Lưu người dùng mới
     public function store(Request $request)
     {
-        $this->userService->createUser($request->all());
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        $data = $request->all();
+        $created = $this->userService->createUser($data);
+        if ($created) {
+            return redirect()->route('users.index')->with('Success', 'The account has been successfully created');
+        } else {
+            return redirect()->route('users.index')->with('Error', 'Could not create user');
+        }
     }
 
-    // Hiển thị thông tin người dùng cụ thể
-    public function show($id)
-    {
-        $user = $this->userService->findUserById($id);
-        return view('users.show', compact('user'));
-    }
 
     // Hiển thị form sửa thông tin người dùng
     public function edit($id)
     {
-        $user = $this->userService->findUserById($id);
-        return view('users.edit', compact('user'));
+        $user = User::findOrFail($id);
+        return view('dashboard.user.edit', compact('user'));
     }
 
     // Cập nhật thông tin người dùng
     public function update(Request $request, $id)
     {
-        $this->userService->updateUser($id, $request->all());
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        $data = $request->all();
+        $result = $this->userService->updateUser($id, $data);
+    
+        if ($result['success']) {
+            return redirect()->route('users.index')->with('Success', $result['message']);
+        } else {
+            return redirect()->back()->withInput()->with('Error', $result['message']);
+        }
     }
 
     // Xóa người dùng

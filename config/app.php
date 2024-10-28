@@ -122,7 +122,7 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-    
+    'image_driver' => \Intervention\Image\Drivers\Gd\Driver::class,
     'roles' => [
         'root' => 1,
         'admin' => 2,
