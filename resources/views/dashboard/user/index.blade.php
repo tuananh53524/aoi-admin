@@ -18,24 +18,51 @@
     @endif
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <div class="text-end">
-            <a href="{{ route('users.create') }}">
-                <button class="rounded-xl p-2 bg-blue-500 font-medium text-white">Thêm user</button>
-            </a>
+        <div class="flex justify-end gap-4">
+            <div class="text-end">
+                <a href="{{ route('users.create') }}">
+                    <button class="rounded-xl p-2 bg-blue-500 font-medium text-white">Thêm user</button>
+                </a>
+            </div>
+            <div class="text-end">
+                <a href="{{ route('users.export',request()->query()) }}">
+                    <button class="rounded-xl p-2 bg-blue-500 font-medium text-white">Export user</button>
+                </a>
+            </div>
         </div>
         <form action="{{ route('users.index') }}" method="GET" class="p-4">
-            <div class="pb-4 dark:bg-gray-900">
-                <label for="table-search" class="sr-only">Search</label>
-                <div class="relative mt-1">
-                    <input type="text" name="name" id="table-search" class="block pt-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search By Name">
+            <div class="pb-4 dark:bg-gray-900 grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4">
+                <!-- Search by Name -->
+                <div class="col-span-1 md:col-span-3 lg:col-span-3">
+                    <label for="table-search" class="sr-only">Search By Name</label>
+                    <input type="text" name="name" id="table-search" value="{{ request('name') }}" class="block pt-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search By Name">
+                </div>
+
+                <!-- Search by Phone -->
+                <div class="col-span-1 md:col-span-3 lg:col-span-3">
+                    <label for="phone-search" class="sr-only">Search By Phone</label>
+                    <input type="text" name="phone" id="phone-search" value="{{ request('phone') }}" class="block pt-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search By Phone">
+                </div>
+                <!-- Search by Status -->
+                <div class="col-span-1 md:col-span-3 lg:col-span-3">
+                    <label for="status-search" class="sr-only">Search By Status</label>
+                    <select name="status" id="status-search" class="block pt-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Filter Status</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                </div>
+                <!-- Submit Button -->
+                <div class="col-span-1 flex justify-start items-center">
+                    <button type="submit" class="text-white bg-blue-600 p-2 rounded-lg">
+                        <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <button type="submit">
-                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                </svg>
-            </button>
         </form>
+
         <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>

@@ -70,4 +70,10 @@ class UserController extends Controller
         $this->userService->deleteUser($id);
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+    // export excel
+    public function export(Request $request)
+    {
+        $filters =  $request->all();
+        return $this->userService->export($filters);
+    }
 }

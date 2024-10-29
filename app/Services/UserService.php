@@ -6,19 +6,42 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\ImageHelper;
 use Illuminate\Support\Facades\DB;
-
-;
-
+use App\Services\AdvancedExcelService;
+use App\Exports\UserExport;
 use Illuminate\Support\Str;
 
 class UserService
 {
-    protected $imageHelper, $model;
+    protected $imageHelper, $model, $excelService;
 
-    public function __construct(ImageHelper $imageHelper, User $model)
+    public function __construct(ImageHelper $imageHelper, User $model, AdvancedExcelService $excelService)
     {
         $this->imageHelper = $imageHelper;
         $this->model = $model;
+        $this->excelService = $excelService;
+    }
+
+    public function export(array $filters = [])
+    {
+        // Lấy query đã được filter
+        $query = User::query()->filter($filters);
+        $columns = [
+            'Name' => 'name',
+            'Email' => 'email',
+            'Phone' => 'phone',
+            'Created At' => 'created_at'
+        ];
+
+        $columnFormats = [
+            'D' => 'd-m-Y hh:mm:ss'
+        ];
+        return $this->excelService->export(
+            $query, // Truyền query đã filter
+            UserExport::class,
+            'users-' . date('Y-m-d') . '.xlsx',
+            $columns,
+            $columnFormats
+        );
     }
 
     /**
@@ -30,7 +53,7 @@ class UserService
     {
         $users = $this->model
                   ->filter($data)
-                  ->paginate(10);
+                  ->paginate(10)->withQueryString();
         return $users;
     }
 
