@@ -25,7 +25,7 @@
                 </a>
             </div>
             <div class="text-end">
-                <a href="{{ route('users.export',request()->query()) }}">
+                <a href="{{ route('users.export', request()->query()) }}">
                     <button class="rounded-xl p-2 bg-blue-500 font-medium text-white">Export user</button>
                 </a>
             </div>
@@ -63,67 +63,61 @@
             </div>
         </form>
 
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Name
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        email
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        phone
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        role
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Action
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (count($users) > 0)
-                    @foreach ($users as $item)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $item->name }}
-                            </th>
-                            <td class="px-6 py-4">
-                                {{ $item->email }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $item->phone ?? 'chưa có' }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $roles[$item->role] ?? 'Unknown role' }}
-                            </td>
-                            <td class="px-6 py-4 flex gap-2">
-                                <a href="{{ route('users.edit', $item->id) }}"><i class="fa-solid fa-pen-to-square font-medium text-blue-600"></i></a>
-                                <i class="fa-solid fa-trash font-medium text-red-600 cursor-pointer" onclick="confirmDelete({{ $item->id }})"></i>
-                                <!-- Hidden form for deletion -->
-                                <form id="delete-form-{{ $item->id }}" action="{{ route('users.destroy', $item->id) }}" method="POST" style="display: none;">
-                                    @csrf
-                                    @method('DELETE')
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
+        <div class="overflow-x-auto max-h-fit overflow-y-auto">
+            <table class="min-w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Name
+                        </th>
+                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Email
+                        </th>
+                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Phone
+                        </th>
+                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Role
+                        </th>
+                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (count($users) > 0)
+                        @foreach ($users as $item)
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    {{ $item->name }}
+                                </th>
+                                <td class="px-6 py-4">
+                                    {{ $item->email }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ $item->phone ?? 'chưa có' }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {{ $roles[$item->role] ?? 'Unknown role' }}
+                                </td>
+                                <td class="px-6 py-4 flex gap-2">
+                                    <a href="{{ route('users.edit', $item->id) }}"><i class="fa-solid fa-pen-to-square font-medium text-blue-600"></i></a>
+                                    <i class="fa-solid fa-trash font-medium text-red-600 cursor-pointer" onclick="confirmDelete({{ $item->id }})"></i>
+                                    <!-- Hidden form for deletion -->
+                                    <form id="delete-form-{{ $item->id }}" action="{{ route('users.destroy', $item->id) }}" method="POST" style="display: none;">
+                                        @csrf
+                                        @method('DELETE')
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
 
         <div class="pagination">
             {{ $users->links() }}
         </div>
     </div>
 </x-app-layout>
-<script>
-    function confirmDelete(id) {
-        if (confirm("Are you sure you want to delete this user?")) {
-            // Submit the delete form if confirmed
-            document.getElementById(`delete-form-${id}`).submit();
-        }
-    }
-</script>
