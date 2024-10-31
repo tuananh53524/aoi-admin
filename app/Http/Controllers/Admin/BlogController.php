@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
@@ -12,7 +14,7 @@ class BlogController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.blog.index');
     }
 
     /**
@@ -20,7 +22,9 @@ class BlogController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        $authors = User::where('status',1)->where('role', config('app.roles.admin'))->orderBy('name', 'asc')->get();
+        return view('dashboard.blog.create', compact('categories', 'authors'));
     }
 
     /**
