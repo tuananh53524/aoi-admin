@@ -128,4 +128,8 @@ return [
         'admin' => 2,
         'user' => 9
     ],
+    'ratios' => [
+        'thumbnail' => '1:1',
+        'banner' => '16:9',
+    ],
 ];

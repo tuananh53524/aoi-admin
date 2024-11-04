@@ -73,7 +73,7 @@
 
                 <div class="basis-1/4 text-center">
                     <div class="mt-2 mb-4">
-                        <img id="thumbnail-preview" src="#" alt="Thumbnail Preview" class=" mx-auto w-64 h-64 object-cover rounded-lg mt-2" />
+                        <img id="thumbnail-preview" src="{{ asset('/images/common/user-avatar.webp') }}" alt="Thumbnail Preview" class=" mx-auto w-64 h-64 object-cover rounded-lg mt-2" />
                     </div>
                     <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="hidden" onchange="previewImage(event,'thumbnail-preview')">
                     <label for="thumbnail" class="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
@@ -90,18 +90,7 @@
         </form>
     </div>
 </x-app-layout>
-<script src="{{ asset('javascript/libs/tinymce/tinymce.min.js') }}"></script>
 <script>
-    tinymce.init({
-        selector: 'textarea#content', // change this value according to the HTML
-        toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons',
-        plugins: [
-            'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
-            'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
-            'media', 'table', 'emoticons', 'help'
-        ],
-
-    });
     document.getElementById('title').addEventListener('input', function() {
         const title = this.value;
         const slug = title
@@ -114,23 +103,4 @@
             .replace(/^-|-$/g, ''); // Loại bỏ dấu gạch ngang ở đầu và cuối
         document.getElementById('slug').value = slug;
     });
-
-    function previewImage(event, previewId) {
-        const preview = document.getElementById(previewId);
-        const file = event.target.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.classList.remove('hidden'); // Hiện ảnh preview
-            };
-
-            reader.readAsDataURL(file);
-        } else {
-            preview.src = '#';
-            preview.classList.add('hidden'); // Ẩn ảnh preview nếu không có file
-        }
-    }
 </script>
