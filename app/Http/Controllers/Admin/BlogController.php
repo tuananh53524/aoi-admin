@@ -5,16 +5,25 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\User;
+use App\Services\BlogService;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
+    protected $blogService;
+
+    public function __construct(BlogService $blogService)
+    {
+        $this->blogService = $blogService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('dashboard.blog.index');
+        $blogs = $this->blogService->getAllBlogs();
+        return view('dashboard.blog.index', compact('blogs'));
     }
 
     /**
@@ -32,7 +41,9 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $this->blogService->createBlog($data);
+        return redirect()->route('blogs.index')->with('success', 'Blog created successfully');
     }
 
     /**
@@ -48,7 +59,10 @@ class BlogController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $blog = $this->blogService->find($id);
+        $categories = Category::all();
+        $authors = User::where('status',1)->where('role', config('app.roles.admin'))->orderBy('name', 'asc')->get();
+        return view('dashboard.blog.edit', compact('blog', 'categories', 'authors'));
     }
 
     /**

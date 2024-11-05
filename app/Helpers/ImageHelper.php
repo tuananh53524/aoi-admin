@@ -26,7 +26,7 @@ class ImageHelper
      * @param int $quality WebP quality (1-100)
      * @return string|null Saved image path
      */
-    public function handleImage(string $input, string $path, string $name, int $quality = 60): ?string
+    public function handleImage(string $input, string $path, string $name, int $quality = 80): ?string
     {
         try {
             // Read image using multiple decoders
@@ -34,19 +34,23 @@ class ImageHelper
                 new DataUriImageDecoder(),
                 new Base64ImageDecoder(),
             ]);
-            // Generate random filename with webp extension
-            $filename = $name . '.webp';
+            // Use safe filename
+            $safeName = $this->generateSafeFilename($name);
+            $filename = $safeName . '.webp';
             $fullPath = $path . '/' . $filename;
 
             // Encode to WebP format with specified quality
             $encoded = $image->toWebp($quality);
-
-            // Save to storage
             Storage::disk('public')->put($fullPath, $encoded);
 
             return $fullPath;
         } catch (\Exception $e) {
             // Log error or handle exception
+            Log::error('Image conversion failed: ' . $e->getMessage(), [
+                'input' => $input,
+                'path' => $path,
+                'error' => $e->getTraceAsString()
+            ]);
             return null;
         }
     }
@@ -55,7 +59,6 @@ class ImageHelper
      *
      * @param string $input Input image (base64 or file path)
      * @param string $path Storage path
-     * @param string $name File name
      * @param string $ratio Ratio from config (e.g. '16:9', '1:1')
      * @param array $options Additional options
      * @return string|null Saved image path
@@ -63,7 +66,6 @@ class ImageHelper
     public function convertImage(
         string $input,
         string $path,
-        string $name,
         string $ratio = '1:1',
         array $options = []
     ): ?string {
@@ -88,32 +90,43 @@ class ImageHelper
             [$ratioWidth, $ratioHeight] = array_map('intval', explode(':', $ratio));
             $targetHeight = ($options['width'] * $ratioHeight) / $ratioWidth;
 
-            // Resize image maintaining ratio
+            // Process image with resize and crop
             $image->resize($options['width'], (int)$targetHeight, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
-
-            // Crop to exact ratio if needed
             $image->cover($options['width'], (int)$targetHeight);
 
-            // Set resolution (replaces density/DPI setting)
-            $encoded = $image->toWebp($options['quality'], $options['dpi']);    
-
-            // Generate filename
-            $filename = $name . '.webp';
+            // Generate safe filename from input
+            $originalName = is_file($input) ? basename($input) : md5(uniqid());
+            $safeName = $this->generateSafeFilename($originalName);
+            $filename = $safeName . '.webp';
             $fullPath = $path . '/' . $filename;
 
-            // Convert to WebP with quality setting
-            $encoded = $image->toWebp($options['quality']);
-
-            // Save to storage
+            // Single WebP conversion with quality and DPI
+            $encoded = $image->toWebp($options['quality'], $options['dpi']);
             Storage::disk('public')->put($fullPath, $encoded);
 
             return $fullPath;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Image conversion failed: ' . $e->getMessage());
+            Log::error('Image conversion failed: ' . $e->getMessage(), [
+                'input' => $input,
+                'path' => $path,
+                'error' => $e->getTraceAsString()
+            ]);
             return null;
         }
+    }
+    /**
+     * Generate a safe filename
+     *
+     * @param string $name Original filename
+     * @return string Safe filename
+     */
+    private function generateSafeFilename(string $filename): string
+    {
+        $nameWithoutExt = pathinfo($filename, PATHINFO_FILENAME);
+        $safeName = preg_replace('/[^a-zA-Z0-9]/', '-', $nameWithoutExt);
+        return trim($safeName, '-');
     }
 }

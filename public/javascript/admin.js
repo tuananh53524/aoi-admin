@@ -14,16 +14,20 @@ function previewImage(event, previewId) {
     const file = event.target.files[0];
 
     if (file) {
-        const reader = new FileReader();
+        if (!file.type.startsWith('image/')) {
+            alert('Vui lòng chọn file ảnh');
+            return;
+        }
 
+        const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
-            preview.classList.remove('hidden'); // Hiện ảnh preview
+            preview.classList.remove('hidden'); // Show preview image
         };
 
         reader.readAsDataURL(file);
     } else {
         preview.src = '#';
-        preview.classList.add('hidden'); // Ẩn ảnh preview nếu không có file
+        preview.classList.add('hidden'); // Hide preview when no file
     }
 }

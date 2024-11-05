@@ -48,7 +48,42 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    @foreach ($blogs as $blog)
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <td class="px-4 py-2">
+                                <img src="{{ Storage::url($blog->thumbnail_url) }}" alt="Blog thumbnail" class="w-20 h-20 object-cover rounded h-[200px] w-[200px]">
+                            </td>
+                            <td class="px-4 py-2 font-medium text-gray-900 dark:text-white">
+                                {{ $blog->title }}
+                                {{-- {{ route('blog.detail', ['category' => $blog->category->slug, 'slug' => $blog->slug]) }} --}}
+                                <a href="#" target="_blank" class="ml-2 text-blue-600 hover:underline">
+                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                </a>
+                            </td>
+                            <td class="px-4 py-2">
+                                <div class="flex gap-2 items-center">
+                                    Updated: {{ $blog->updated_at->format('d/m/Y H:i') }}
+                                    <span class="px-2 py-1 rounded-full text-xs {{ $blog->status == 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $blog->status == 1 ? 'Active' : 'Inactive' }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-2">
+                                <div class="flex gap-2">
+                                    <a href="{{ route('blogs.edit', $blog->id) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                        <i class="fa-solid fa-pen-to-square font-medium"></i>
+                                    </a>
+                                    <form action="{{ route('blogs.destroy', $blog->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline" onclick="return confirm('Are you sure you want to delete this blog?')">
+                                            <i class="fa-solid fa-trash font-medium"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
