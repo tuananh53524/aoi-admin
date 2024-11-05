@@ -70,7 +70,9 @@ class BlogController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $data = $request->all();
+        $this->blogService->update($id, $data);
+        return redirect()->route('blogs.index')->with('success', 'Blog updated successfully');
     }
 
     /**

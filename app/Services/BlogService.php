@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use App\Helpers\ImageHelper;
+use Illuminate\Support\Facades\DB;
 
 class BlogService
 {
@@ -69,21 +70,53 @@ class BlogService
     /**
      * Cập nhật blog
      */
-    public function update(int $id, array $data): bool
+    public function update(int $id, array $data): array
     {
-        $blog = $this->find($id);
-        
-        if (!$blog) {
-            return false;
-        }
+        try {
+            $blog = $this->find($id);
+            
+            if (!$blog) {
+                return [
+                    'success' => false,
+                    'message' => 'Blog không tồn tại!'
+                ];
+            }
 
-        return $blog->update([
-            'title' => $data['title'],
-            'content' => $data['content'],
-            'slug' => Str::slug($data['title']),
-            'status' => $data['status'] ?? $blog->status,
-            // Thêm các trường khác nếu cần
-        ]);
+            DB::beginTransaction();
+
+            $blog->title = $data['title'];
+            $blog->slug = $data['slug'] ?? Str::slug($data['title']);
+            $blog->description = $data['description'];
+            $blog->meta_title = $data['meta_title'];
+            $blog->meta_description = $data['meta_description'];
+            $blog->category_id = $data['category_id'];
+            $blog->content = $data['content'];
+            $blog->tags = $data['tags'] ?? null;
+            $blog->status = $data['status'] ?? 0;
+            $blog->feature = $data['feature'] ?? 0;
+            $blog->author_id = $data['author_id'];
+
+            $base64Image = base64_encode(file_get_contents($data['thumbnail']));
+            $thumbnailPath = $this->imageHelper->convertImage($base64Image,'blogs/thumbnails','1:1');
+            $blog->thumbnail_url = $thumbnailPath;
+
+            $blog->save();
+            
+            DB::commit();
+            
+            return [
+                'success' => true,
+                'message' => 'Blog đã được cập nhật thành công!'
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return [
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ];
+        }
     }
 
     /**
