@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Blog;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use App\Helpers\ImageHelper;
@@ -22,17 +21,10 @@ class BlogService
     /**
      * Lấy danh sách blog có phân trang
      */
-    public function getAllBlogs(int $perPage = 10): LengthAwarePaginator
+    public function getAllBlogs(array $data, int $perPage = 10): LengthAwarePaginator
     {
-        return $this->blog->latest()->paginate($perPage);
-    }
-
-    /**
-     * Lấy tất cả blog không phân trang
-     */
-    public function getAllWithoutPagination(): Collection
-    {
-        return $this->blog->latest()->get();
+        $blogs = $this->blog->filter($data)->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        return $blogs;
     }
 
     /**
@@ -131,28 +123,5 @@ class BlogService
         }
 
         return $blog->delete();
-    }
-
-    /**
-     * Tìm kiếm blog
-     */
-    public function search(string $keyword, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->blog
-            ->where('title', 'LIKE', "%{$keyword}%")
-            ->orWhere('content', 'LIKE', "%{$keyword}%")
-            ->latest()
-            ->paginate($perPage);
-    }
-
-    /**
-     * Lấy các bài viết theo trạng thái
-     */
-    public function getByStatus(string $status, int $perPage = 10): LengthAwarePaginator
-    {
-        return $this->blog
-            ->where('status', $status)
-            ->latest()
-            ->paginate($perPage);
     }
 }

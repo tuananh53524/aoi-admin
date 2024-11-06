@@ -16,7 +16,7 @@
             </button>
         </div>
     @endif
-
+  
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <div class="flex justify-end gap-4">
             <div class="text-end">
@@ -26,23 +26,57 @@
             </div>
         </div>
         <form action="{{ route('blogs.index') }}" method="GET" class="p-4">
-            
-        </form>
+            <div class="flex gap-4 items-center">
+                <div class="w-72">
+                    <input type="text" id="title" name="title" value="{{ request('title') }}" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                        placeholder="Tìm kiếm theo tiêu đề...">
+                </div>
+                <div class="w-48">
+                    <select id="author" name="author_id" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Tất cả tác giả</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}" {{ request('author_id') == $user->id ? 'selected' : '' }}>
+                                {{ $user->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="w-48">
+                    <select id="status" name="status" 
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option value="">Tất cả</option>
+                        <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Hoạt động</option>
+                        <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Không hoạt động</option>
+                    </select>
+                </div>
+        
+                <div class="col-span-1 flex justify-start items-center">
+                    <button type="submit" class="text-white bg-blue-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+        </form>    
 
         <div class="overflow-x-auto max-h-fit overflow-y-auto">
             <table class="min-w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                        <th scope="col" class="px-3 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
                             Thumnail
                         </th>
-                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                        <th scope="col" class="px-3 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
                             Blog title
                         </th>
-                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                        <th scope="col" class="px-3 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                            Category
+                        </th>
+                        <th scope="col" class="px-3 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
                             Updated & Status
                         </th>
-                        <th scope="col" class="px-6 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
+                        <th scope="col" class="px-3 py-3 sticky top-0 bg-gray-50 dark:bg-gray-700">
                             Action
                         </th>
                     </tr>
@@ -59,6 +93,9 @@
                                 <a href="#" target="_blank" class="ml-2 text-blue-600 hover:underline">
                                     <i class="fa-solid fa-up-right-from-square"></i>
                                 </a>
+                            </td>
+                            <td class="px-4 py-2">
+                                {{ $blog->category->name }}
                             </td>
                             <td class="px-4 py-2">
                                 <div class="flex gap-2 items-center">
@@ -88,8 +125,8 @@
             </table>
         </div>
 
-        {{-- <div class="pagination">
-            {{ $users->links() }}
-        </div> --}}
+        <div class="pagination">
+            {{ $blogs->links() }}
+        </div>
     </div>
 </x-app-layout>

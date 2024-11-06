@@ -20,10 +20,11 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $blogs = $this->blogService->getAllBlogs();
-        return view('dashboard.blog.index', compact('blogs'));
+        $users = User::where('status',1)->where('role', config('app.roles.admin'))->orderBy('name', 'asc')->get();
+        $blogs = $this->blogService->getAllBlogs($request->all());
+        return view('dashboard.blog.index', compact('blogs', 'users'));
     }
 
     /**
@@ -80,6 +81,7 @@ class BlogController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $this->blogService->delete($id);
+        return redirect()->route('blogs.index')->with('success', 'Blog deleted successfully.');
     }
 }
